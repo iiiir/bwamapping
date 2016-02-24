@@ -1,0 +1,45 @@
+#%Module1.0#
+###
+### modules modulefile
+###
+
+proc ModulesHelp { } {
+        global version compiler
+        puts stderr "\tInitializes your environment to use the bwa mapping pipeline\n"
+}
+
+puts stderr "*** ========== b38 ========== ***"
+
+module-whatis "Initializes the bwa mapping pipeline"
+
+# Setting paths and env for gaw
+set app_dir /home/swang/app
+set data_dir /home/swang/data
+#set data_dir /datasets/public/genomes/hsapiens/hg19/SNPS/gatk_bundle
+set bwamap_home $app_dir/bwamap
+setenv BWAMAP_HOME $bwamap_home
+prepend-path PATH $bwamap_home/bin
+prepend-path PATH $bwamap_home/utils
+setenv JAVATMP /scratch_space/swang/JAVA
+#prepend-path PYTHONPATH $gaw_home/pythonscript
+
+# Setting paths and env for the Simple Job Manager (SJM)
+prepend-path PATH $app_dir/SJM/bin
+
+# Setting paths for R/java/python
+prepend-path PATH /hpcf/apps/R/install/3.1.1/bin
+prepend-path PATH /hpcf/apps/java/jdk1.7.0_05/bin
+prepend-path PATH /hpcf/apps/python/install/2.7.2/bin
+prepend-path LD_LIBRARY_PATH /hpcf/apps/python/install/2.7.2/lib
+prepend-path PYTHONPATH $bwamap_home/pythonscript
+
+# setting paths for bioinformatics tools
+setenv PICARDPATH /hpcf/apps/picard/install/1.129
+prepend-path PATH /hpcf/apps/samtools/vendor/1.2
+prepend-path PATH /hpcf/apps/bwa/vendor/0.7.12
+prepend-path PATH /hpcf/apps/htslib/install/1.2.1/bin
+
+# build set up to b37 by default
+setenv ref_genome /nfs_exports/genomes/1/Homo_sapiens/GRCh38/GRCh38_no_alt/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna
+setenv ref_chr_ctg /nfs_exports/genomes/1/Homo_sapiens/GRCh38/GRCh38_no_alt/GCA_000001405.15_GRCh38_no_alt_analysis_set.chr.ctg.txt
+setenv ref_build b38
