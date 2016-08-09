@@ -28,8 +28,8 @@ then
 fi
 
 cmd="bwa sampe $ref_genome \
-            <(bwa aln -b -1 -t 4 $ref_genome $q1) \
-            <(bwa aln -b -2 -t 4 $ref_genome $q1) $q1 $q1 $optRG | \
+            <(bwa aln -1 -t 4 $ref_genome $q1) \
+            <(bwa aln -2 -t 4 $ref_genome $q1) $q1 $q1 $optRG | \
             samtools view -b - | \
             samtools sort - $o"
 echo $cmd

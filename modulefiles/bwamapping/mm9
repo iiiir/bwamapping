@@ -8,7 +8,7 @@ proc ModulesHelp { } {
         puts stderr "\tInitializes your environment to use the bwa mapping pipeline\n"
 }
 
-puts stderr "*** ========== b37 ========== ***"
+puts stderr "*** ========== mm9 ========== ***"
 
 module-whatis "Initializes the bwa mapping pipeline"
 
@@ -20,26 +20,27 @@ set bwamap_home $app_dir/bwamap
 setenv BWAMAP_HOME $bwamap_home
 prepend-path PATH $bwamap_home/bin
 prepend-path PATH $bwamap_home/utils
-setenv JAVATMP /scratch_space/swang/JAVA
+setenv JAVATMP /scratch_space/swang/JAVA 
 #prepend-path PYTHONPATH $gaw_home/pythonscript
 
 # Setting paths and env for the Simple Job Manager (SJM)
-prepend-path PATH $app_dir/SJM/bin
+#prepend-path PATH $app_dir/SJM/bin
+#use the one mod by Robert
+prepend-path PATH /hpcf/apps/sjm/install/1.2.0-hpcf/bin
 
 # Setting paths for R/java/python
-prepend-path PATH /hpcf/apps/R/install/3.1.1/bin
-prepend-path PATH /hpcf/apps/java/jdk1.7.0_05/bin
+prepend-path PATH /hpcf/apps/R/install/3.1.3/bin
+prepend-path PATH /hpcf/apps/java/jdk1.8.0_60/bin
 prepend-path PATH /hpcf/apps/python/install/2.7.2/bin
 prepend-path LD_LIBRARY_PATH /hpcf/apps/python/install/2.7.2/lib
 prepend-path PYTHONPATH $bwamap_home/pythonscript
 
 # setting paths for bioinformatics tools
-setenv PICARDPATH /hpcf/apps/picard/install/1.129
+setenv PICARDPATH /hpcf/apps/picard/install/2.0.1
 prepend-path PATH /hpcf/apps/samtools/vendor/1.2
 prepend-path PATH /hpcf/apps/bwa/vendor/0.7.12
 prepend-path PATH /hpcf/apps/htslib/install/1.2.1/bin
 
 # build set up to b37 by default
-setenv ref_genome ${data_dir}/ref_genome/GRCh37-lite.fa
-setenv ref_chr_ctg ${data_dir}/ref_genome/GRCh37-lite.chr.ctg.txt
-setenv ref_build b37
+setenv ref_genome /rgs01/resgen/dev/wc/compbio/swang/references/mm9/mm9.fa
+setenv ref_build mm9

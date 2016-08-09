@@ -20,7 +20,8 @@ for bam in $@; do
 done
 
 >&2 echo ">>> Marking duplicates"
-cmd="java -Xms5g -Xmx5g -jar $PICARDPATH/picard.jar MarkDuplicates\
+cmd="java -Xms10g -Xmx10g -XX:ParallelGCThreads=8 \
+	-jar $PICARDPATH/picard.jar MarkDuplicates\
 	TMP_DIR=$JAVATMP \
 	$f \
 	O=${o} \
