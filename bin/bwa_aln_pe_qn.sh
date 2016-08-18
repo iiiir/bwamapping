@@ -18,8 +18,8 @@ q2=`cd \`dirname $2\`; pwd`/`basename $2`
 [[ ! -f $q2 ]] && echo ">>> Does not exist: $q2" && exit 1
 
 cmd="bwa sampe $ref_genome \
-            <(bwa aln -b -1 -t 4 $ref_genome $q1) \
-            <(bwa aln -b -2 -t 4 $ref_genome $q1) $q1 $q1 | \
+            <(bwa aln -b -1 $ref_genome $q1) \
+            <(bwa aln -b -2 $ref_genome $q1) $q1 $q1 | \
             samtools view -b - | \
             java -Xmx10g -jar $PICARDPATH/picard.jar SortSam \
 				TMP_DIR=$JAVATMP \
