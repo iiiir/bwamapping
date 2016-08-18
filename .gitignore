@@ -1,3 +1,6 @@
+# ignore backup files
+bin/backup
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db

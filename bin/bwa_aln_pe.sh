@@ -6,7 +6,7 @@ echo ">>> e.g. get empty out.bam because fastq file does not exist"
 
 if [ $# -lt 1 ]
 then 
-	echo "Usage: $0 <out.bam> <u.bam> <u.bam> [RG tag]"
+	echo "Usage: $0 <out.bam> <R1.fastq.gz> <R2.fastq.gz> [RG tag]"
 	exit 1
 fi
 
@@ -28,8 +28,8 @@ then
 fi
 
 cmd="bwa sampe $ref_genome \
-            <(bwa aln -1 -t 4 $ref_genome $q1) \
-            <(bwa aln -2 -t 4 $ref_genome $q1) $q1 $q1 $optRG | \
+            <(bwa aln $ref_genome $q1) \
+            <(bwa aln $ref_genome $q2) $q1 $q2 $optRG | \
             samtools view -b - | \
             samtools sort - $o"
 echo $cmd

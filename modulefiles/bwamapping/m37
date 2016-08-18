@@ -42,5 +42,5 @@ prepend-path PATH /hpcf/apps/bwa/vendor/0.7.12
 prepend-path PATH /hpcf/apps/htslib/install/1.2.1/bin
 
 # build set up to b37 by default
-setenv ref_genome /rgs01/resgen/dev/wc/swang/reference/mm9/mm9.fa
-setenv ref_build mm9
+setenv ref_genome /rgs01/resgen/dev/wc/swang/reference/MGSCv37/MGSCv37.fa
+setenv ref_build MGSCv37

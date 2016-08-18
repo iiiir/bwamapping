@@ -1,15 +1,4 @@
 #!/bin/env python
-
-# run_bwa_aln.py -r1 NA12878_R1.fastq -r2 NA12878_R2.fastq \
-# -o SJMMNORM017056_C3 \
-# -O SJMMNORM017056_C3 \
-# --id SJMMNORM017056_C3 \
-# --sm SJMMNORM017056_C3 \
-# --lb CHIPSEQ_INPUT \
-# --pl illumina \
-# --tmp /rgs01/scratch_space/swang/ \
-# -j SJMMNORM017056_C3.sjm
-
 import sys
 import os
 import re
@@ -19,7 +8,7 @@ import subprocess
 import sjm
 import util
 
-p = argparse.ArgumentParser(description='Generating the job file for the BWA mapping')
+p = argparse.ArgumentParser(description='run_bwa_aln.py -r1 R1.fq -r2 R2.fq -o o.bam -O work_dir --tmp /scratch_space -j sample.sjm --id Test --sm Test --lb Test --pl ILN')
 p.add_argument('-r1', '--read1', metavar='FILE', nargs="+", required=True, help='The FASTQ file(s) for reads 1')
 p.add_argument('-r2', '--read2', metavar='FILE', nargs="+", required=True, help='The FASTQ file(s) for reads 2, if ubam then provide read1')
 p.add_argument('-o', '--output_prefix', metavar='NAME', required=True, help='The output prefix for final bam')
@@ -28,7 +17,7 @@ p.add_argument('--merge_bams', action='store_true', help='If files need to be me
 p.add_argument('-T', '--tmp', metavar='DIR', required=True, help='The TMP directory for storing intermediate files (default=output directory')
 p.add_argument('--id',metavar='STR', required=True, help="sample id")
 p.add_argument('--lb',metavar='STR', required=True, help="library")
-p.add_argument('--sm',metavar='STR', required=True, help="sample name")
+p.add_argument('--sm',metavar='STR', required=True, help="sample name (will creat such a folder in TMP dir to hold temp files)")
 p.add_argument('--pl',metavar='STR', required=True, help="sequencing platform")
 p.add_argument('-j', '--jobfile', metavar='FILE', help='The jobfile name (default: stdout)')
 p.add_argument('-m', '--memory', metavar='SIZE', type=int, default=12, help='Memory size (GB) per job (default: 12)')
@@ -67,9 +56,8 @@ def align_pe(reads1, reads2):
         read2 = reads2[i]
         readfile1 = util.File(read1)
         readfile2 = util.File(read2)
-        if readfile1.path.endswith('.bam'):
-            # caveate: fi file name contains "u" then will be stripped off!! eg chunk -> cnk
-            bamname = readfile1.prefix.rstrip('.u') + '.sorted.bam'
+        if readfile1.path.endswith('.gz'):
+            bamname = re.sub(r'[._][Rr]1', '', readfile1.prefix.rstrip('.fastq') ) + '.sorted.bam'
         else:
             bamname   = re.sub(r'[._][Rr]1', '', readfile1.prefix ) + '.sorted.bam'
         bam = util.File( os.path.join(tmpdir, bamname) )
@@ -80,33 +68,17 @@ def align_pe(reads1, reads2):
         jobs.append(job)
     return jobs
 
-def merge_bam(pjobs, out_prefix):
-    '''
-    Caveat: If output bam exists, needs to apply "-f" to overwrite or task will abort.
-    '''
+def dedup_merge(pjobs, outbam):
     jobs = []
     bams = []
     for pjob in pjobs:
         bams.append(pjob.output.path)
-    job = sjm.Job('samtools_merge-%s' % args.output_prefix)
-    job.memory = "15G"
-    outname    = os.path.join(tmpdir, '%s.bam' % args.output_prefix)
-    job.output = util.File( outname )
-    job.append('samtools merge %s %s && samtools index %s'%(job.output, ' '.join(bams), job.output))
+    job = sjm.Job('samtools_merge-%s' % outbam )
+    job.memory = "20G"
+    job.output = util.File( os.path.join(outdir, outbam) )
+    job.append('picard_mdup.sh %s %s'%(job.output, ' '.join(bams) ) )
     job.depend(*pjobs)
     jobs.append(job)
-    return jobs
-
-def dedup_bam(pjobs):
-    jobs = []
-    for pjob in pjobs:
-        bamfile=pjob.output
-        job=sjm.Job('picard_mdup-%s' % bamfile.prefix)
-        job.memory = "20G"
-        job.output = os.path.join(outdir, bamfile.chext("mdup.bam").name)
-        job.append('picard_mdup.sh %s %s'%(job.output, bamfile))
-        job.depend(pjob)
-        jobs.append(job)
     return jobs
 
 def sam_flagstat(pjobs):
@@ -122,9 +94,7 @@ def sam_flagstat(pjobs):
     return jobs
 
 jobs = align_pe(args.read1, args.read2)
-if args.merge_bams:
-    jobs=merge_bam(jobs, args.output_prefix)
-jobs = dedup_bam(jobs)
+jobs = dedup_merge(jobs, args.output_prefix)
 jobs = sam_flagstat(jobs)
 descout = sys.stdout if jobfile is None else open(jobfile.path, "w")
 descout.write(sjm.Job().depend(*jobs).desc())

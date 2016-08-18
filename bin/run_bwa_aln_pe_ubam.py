@@ -8,7 +8,7 @@ import util
 import random
 import string
 
-p = argparse.ArgumentParser(description='run_bwa_aln_pe_ubam.py -b *.bam -o o.bam -O folder --tmp /scratch_space --merge_bams -j jobs.sjm')
+p = argparse.ArgumentParser(description='run_bwa_aln_pe_ubam.py -b *.bam -o o.bam -O folder --tmp /scratch_space -j jobs.sjm')
 p.add_argument('-b', '--ubams', metavar='FILE', nargs="+", required=True, help='The FASTQ file(s) for reads 1')
 p.add_argument('-o', '--output_prefix', metavar='NAME', required=True, help='The output prefix for final bam')
 p.add_argument('-O', '--outdir', metavar='DIR', required=True, help='The output directory')
@@ -83,32 +83,6 @@ def merge_aln(pjobs):
         jobs.append(job)
     return jobs
 
-def merge_bam(pjobs, outbam):
-    '''
-    Caveat: If output bam exists, needs to apply "-f" to overwrite or task will abort.
-    '''
-    bams = []
-    for pjob in pjobs:
-        bams.append(pjob.output.path)
-    job = sjm.Job('samtools_merge-%s' % outbam )
-    job.memory = "15G"
-    job.output = util.File( os.path.join(tmpdir, outbam) )
-    job.append('samtools merge %s %s && samtools index %s'%(job.output, ' '.join(bams), job.output))
-    job.depend(*pjobs)
-    return job
-
-def dedup_bam(pjobs):
-    jobs = []
-    for pjob in pjobs:
-        bamfile=pjob.output
-        job=sjm.Job('picard_mdup-%s' % bamfile.prefix)
-        job.memory = "20G"
-        job.output = os.path.join(outdir, bamfile.chext("mdup.bam").name)
-        job.append('picard_mdup.sh %s %s'%(job.output, bamfile))
-        job.depend(pjob)
-        jobs.append(job)
-    return jobs
-
 def dedup_merge(pjobs, outbam):
     jobs = []
     bams = []
@@ -121,7 +95,6 @@ def dedup_merge(pjobs, outbam):
     job.depend(*pjobs)
     jobs.append(job)
     return jobs
-
 
 def sam_flagstat(pjobs):
     jobs = []
@@ -138,15 +111,7 @@ def sam_flagstat(pjobs):
 jobs = sort_ubam(args.ubams)
 jobs = align_pe(jobs)
 jobs = merge_aln(jobs)
-
-## == merge and then dedup == ##
-#if args.merge_bams:
-#    job = merge_bam(jobs, args.output_prefix)
-#jobs = dedup_bam([job])
-
-## == merge and dedup in one step == ##
 jobs = dedup_merge(jobs, args.output_prefix)
-
 jobs = sam_flagstat(jobs)
 descout = sys.stdout if jobfile is None else open(jobfile.path, "w")
 descout.write(sjm.Job().depend(*jobs).desc())
