@@ -88,7 +88,7 @@ def dedup_merge(pjobs, outbam):
     bams = []
     for pjob in pjobs:
         bams.append(pjob.output.path)
-    job = sjm.Job('samtools_merge-%s' % outbam )
+    job = sjm.Job('picard_markdup-%s' % outbam )
     job.memory = "20G"
     job.output = util.File( os.path.join(outdir, outbam) )
     job.append('picard_mdup.sh %s %s'%(job.output, ' '.join(bams) ) )

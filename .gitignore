@@ -1,5 +1,6 @@
 # ignore backup files
-bin/backup
+utils/temp
+scratch
 
 # Windows image file caches
 Thumbs.db
