@@ -30,5 +30,4 @@ SM:
 - SM can be identical to ID for one sample, one experiemnts cases.    
 
 ## SJM
-https://github.com/StanfordBioinformatics/    
-
+https://github.com/StanfordBioinformatics/SJM    
