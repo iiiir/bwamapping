@@ -24,6 +24,8 @@ ID:
 - ID do not need to carry any meaning as it is used as uniq key.    
 - Can be used to distinguish the reads from different experiments. for example if your initial sequencing
 does not have enough coverage, and a topoff was done to get more reads. ID could be "NA12878" and "NA12878-topoff" to distinguish every reads.    
+    
+
 SM:     
 - Every BAM is encouraged to have one SM tag, unless in rare scenario you need to merge numtiple samples together.     
 - SM is used by GATK as sample name in variant call step (write to VCF file). if there are multiple SM tag in a BAM GATK HC caller (gvcf mode) would be confused.    
