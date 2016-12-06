@@ -1,7 +1,7 @@
 # bwa aln pipeline    
 - bwa mapping + dedup    
-- bwa hybrid mapping + dedup + split
-The pipeline is for GRCh37 and GRCh38.    
+- bwa hybrid mapping + dedup + split    
+The pipeline works for single references such as GRCh37 and GRCh38, as well as hybrid genomes (e.g. mm9+dm3).    
 
 ## dependencies
 + bwa
